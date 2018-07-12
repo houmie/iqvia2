@@ -27,6 +27,7 @@ class ContactSchema(Schema):
                              error_messages={'validator_failed':
                                              {'message': 'Username must be 6-52 characters length and'
                                                          ' can only contain: a-zA-Z0-9.'}})
+    inserted = fields.DateTime(dump_only=True)
     emails = fields.Nested(EmailSchema, exlude=('contact_id',), many=True)
 
     @post_load

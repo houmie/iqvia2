@@ -35,11 +35,18 @@ define({ "api": [
           },
           {
             "group": "Body",
+            "type": "Array",
+            "optional": false,
+            "field": "emails",
+            "description": "<p>The emails of the contact.</p>"
+          },
+          {
+            "group": "Body",
             "type": "String",
             "size": "5-128",
             "optional": false,
-            "field": "email",
-            "description": "<p>The email of the contact.</p>"
+            "field": "emails.email",
+            "description": "<p>The email address.</p>"
           }
         ]
       }
@@ -80,11 +87,25 @@ define({ "api": [
           },
           {
             "group": "Success 200",
+            "type": "Datetime",
+            "optional": false,
+            "field": "inserted",
+            "description": "<p>The insertion time of the contact.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Array",
+            "optional": false,
+            "field": "emails",
+            "description": "<p>The emails of the contact.</p>"
+          },
+          {
+            "group": "Success 200",
             "type": "String",
             "size": "5-128",
             "optional": false,
-            "field": "email",
-            "description": "<p>The password of the contact.</p>"
+            "field": "emails.email",
+            "description": "<p>The email address.</p>"
           }
         ]
       }
@@ -95,7 +116,7 @@ define({ "api": [
   },
   {
     "type": "delete",
-    "url": "/contacts/delete/<contact_id>",
+    "url": "/contacts/<contact_id>",
     "title": "Deletes a contact",
     "description": "<p>Deletes a contact</p>",
     "name": "delete_contact",
@@ -119,9 +140,101 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/contacts/<username>",
+    "title": "Gets a contact",
+    "description": "<p>Gets a contact with filters</p>",
+    "name": "get_contact",
+    "group": "Contacts",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "size": "6-32",
+            "optional": true,
+            "field": "username",
+            "description": "<p>The Username of the contact.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "size": "5-128",
+            "optional": true,
+            "field": "email",
+            "description": "<p>The email address of the contact.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "UUID",
+            "optional": false,
+            "field": "id",
+            "description": "<p>The ID of the contact.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "size": "1-50",
+            "optional": false,
+            "field": "first_name",
+            "description": "<p>The first name of the contact.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "size": "1-50",
+            "optional": false,
+            "field": "surname",
+            "description": "<p>The surname of the contact.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "size": "6-32",
+            "optional": false,
+            "field": "username",
+            "description": "<p>The username of the contact.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Datetime",
+            "optional": false,
+            "field": "inserted",
+            "description": "<p>The insertion time of the contact.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Array",
+            "optional": false,
+            "field": "emails",
+            "description": "<p>The emails of the contact.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "size": "5-128",
+            "optional": false,
+            "field": "emails.email",
+            "description": "<p>The email address.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "iqvia/contacts/views.py",
+    "groupTitle": "Contacts"
+  },
+  {
+    "type": "get",
     "url": "/contacts",
-    "title": "Gets the contacts",
-    "description": "<p>Gets the contacts</p>",
+    "title": "Gets all the contacts",
+    "description": "<p>Gets all the contacts</p>",
     "name": "get_contacts",
     "group": "Contacts",
     "success": {
@@ -167,81 +280,25 @@ define({ "api": [
           },
           {
             "group": "Success 200",
-            "type": "String",
-            "size": "5-128",
+            "type": "Datetime",
             "optional": false,
-            "field": "contacts.email",
-            "description": "<p>The email of the contact.</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "iqvia/contacts/views.py",
-    "groupTitle": "Contacts"
-  },
-  {
-    "type": "get",
-    "url": "/contacts/<username>",
-    "title": "Gets a contact",
-    "description": "<p>Gets a contact by username</p>",
-    "name": "get_contacts",
-    "group": "Contacts",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "size": "6-32",
-            "optional": true,
-            "field": "username",
-            "description": "<p>Username of the contact.</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "UUID",
-            "optional": false,
-            "field": "id",
-            "description": "<p>The ID of the contact.</p>"
+            "field": "contacts.inserted",
+            "description": "<p>The insertion time of the contact.</p>"
           },
           {
             "group": "Success 200",
-            "type": "String",
-            "size": "1-50",
+            "type": "Array",
             "optional": false,
-            "field": "first_name",
-            "description": "<p>The first name of the contact.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "size": "1-50",
-            "optional": false,
-            "field": "surname",
-            "description": "<p>The surname of the contact.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "size": "6-32",
-            "optional": false,
-            "field": "username",
-            "description": "<p>The username of the contact.</p>"
+            "field": "contacts.emails",
+            "description": "<p>The emails of the contact.</p>"
           },
           {
             "group": "Success 200",
             "type": "String",
             "size": "5-128",
             "optional": false,
-            "field": "email",
-            "description": "<p>The password of the contact.</p>"
+            "field": "contacts.emails.email",
+            "description": "<p>The email address.</p>"
           }
         ]
       }
@@ -286,11 +343,18 @@ define({ "api": [
           },
           {
             "group": "Body",
-            "type": "String",
-            "size": "128",
+            "type": "Array",
             "optional": true,
-            "field": "email",
-            "description": "<p>The email of the contact.</p>"
+            "field": "emails",
+            "description": "<p>The emails of the contact.</p>"
+          },
+          {
+            "group": "Body",
+            "type": "String",
+            "size": "5-128",
+            "optional": true,
+            "field": "emails.email",
+            "description": "<p>The email address.</p>"
           }
         ]
       }
@@ -331,11 +395,25 @@ define({ "api": [
           },
           {
             "group": "Success 200",
+            "type": "Datetime",
+            "optional": false,
+            "field": "inserted",
+            "description": "<p>The insertion time of the contact.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Array",
+            "optional": false,
+            "field": "emails",
+            "description": "<p>The emails of the contact.</p>"
+          },
+          {
+            "group": "Success 200",
             "type": "String",
             "size": "5-128",
             "optional": false,
-            "field": "email",
-            "description": "<p>The password of the contact.</p>"
+            "field": "emails.email",
+            "description": "<p>The email address.</p>"
           }
         ]
       }
@@ -368,8 +446,8 @@ define({ "api": [
     "url": "",
     "version": "0.0.0",
     "filename": "iqvia/static/docs/main.js",
-    "group": "_home_clement_daubrenet_perso_iqvia_iqvia_static_docs_main_js",
-    "groupTitle": "_home_clement_daubrenet_perso_iqvia_iqvia_static_docs_main_js",
+    "group": "_home_clement_daubrenet_iqvia2_iqvia_static_docs_main_js",
+    "groupTitle": "_home_clement_daubrenet_iqvia2_iqvia_static_docs_main_js",
     "name": ""
   }
 ] });

@@ -30,6 +30,7 @@ def add_contact(contact):
     @apiSuccess {String{1-50}}           first_name           The first name of the contact.
     @apiSuccess {String{1-50}}           surname              The surname of the contact.
     @apiSuccess {String{6-32}}           username             The username of the contact.
+    @apiSuccess {Datetime}               inserted             The insertion time of the contact.
     @apiSuccess {Array}                  emails               The emails of the contact.
     @apiSuccess {String{5-128}}          emails.email         The email address.
     """
@@ -38,8 +39,8 @@ def add_contact(contact):
         return io.bad_request('Sorry, the username {} of the contact you try '
                               'to add already exists'.format(contact.username))
 
-    db.session.add(contact)
-    db.session.flush()
+    db.session.merge(contact)
+    db.session.commit()
     return contact
 
 
@@ -57,6 +58,7 @@ def get_contacts():
     @apiSuccess {String{1-50}}           contacts.first_name     The first name of the contact.
     @apiSuccess {String{1-50}}           contacts.surname        The surname of the contact.
     @apiSuccess {String{6-32}}           contacts.username       The username of the contact.
+    @apiSuccess {Datetime}               contacts.inserted       The insertion time of the contact.
     @apiSuccess {Array}                  contacts.emails         The emails of the contact.
     @apiSuccess {String{5-128}}          contacts.emails.email   The email address.
     """
@@ -81,6 +83,7 @@ def get_contact(username, email):
     @apiSuccess {String{1-50}}           first_name           The first name of the contact.
     @apiSuccess {String{1-50}}           surname              The surname of the contact.
     @apiSuccess {String{6-32}}           username             The username of the contact.
+    @apiSuccess {Datetime}               inserted             The insertion time of the contact.
     @apiSuccess {Array}                  emails               The emails of the contact.
     @apiSuccess {String{5-128}}          emails.email         The email address.
     """
@@ -135,6 +138,7 @@ def update_contact(contact_id, contact_data):
     @apiSuccess {String{1-50}}           first_name           The first name of the contact.
     @apiSuccess {String{1-50}}           surname              The surname of the contact.
     @apiSuccess {String{6-32}}           username             The username of the contact.
+    @apiSuccess {Datetime}               inserted             The insertion time of the contact.
     @apiSuccess {Array}                  emails               The emails of the contact.
     @apiSuccess {String{5-128}}          emails.email         The email address.
     """
@@ -156,5 +160,6 @@ def update_contact(contact_id, contact_data):
     if 'emails' in contact_data:
         contact.emails = contact_data['emails']
 
-    db.session.flush()
+    db.session.merge(contact)
+    db.session.commit()
     return contact

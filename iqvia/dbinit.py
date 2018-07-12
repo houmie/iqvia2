@@ -1,8 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin
-from sqlalchemy import String, ForeignKey, Boolean
+from sqlalchemy import String, ForeignKey, text, DateTime
 from sqlalchemy.orm import relationship
+from datetime import datetime
 import uuid
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///iqvia.db'
@@ -22,6 +23,7 @@ class Contact(UserMixin, db.Model):
     first_name = db.Column(String(50), nullable=False)
     surname = db.Column(String(50), nullable=False)
     username = db.Column(String(32), nullable=False, unique=True)
+    inserted = db.Column(DateTime(True), nullable=False, default=lambda: datetime.now())
 
     emails = relationship('Email', cascade='all, delete, delete-orphan', lazy='noload')
 

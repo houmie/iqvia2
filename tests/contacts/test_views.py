@@ -18,8 +18,8 @@ def test_add_contact_ok(monkeypatch):
     database_mock = Mock()
 
     monkeypatch.setattr('iqvia.contacts.views.uuid4', Mock(return_value='7e8377af-bdc3-4b9e-a491-2d9ddff3253f'))
-    monkeypatch.setattr('iqvia.contacts.views.db.session.add', database_mock)
-    monkeypatch.setattr('iqvia.contacts.views.db.session.flush', database_mock)
+    monkeypatch.setattr('iqvia.contacts.views.db.session.merge', database_mock)
+    monkeypatch.setattr('iqvia.contacts.views.db.session.commit', database_mock)
     monkeypatch.setattr('iqvia.contacts.views.does_contact_username_exist', Mock(return_value=False))
     status_code, response_data = post('contacts/', test_data)
     assert response_data == {'surname': 'testsurname',
@@ -194,7 +194,8 @@ def test_update_contact_ok(monkeypatch):
     database_mock = Mock()
 
     monkeypatch.setattr('iqvia.contacts.views.uuid4', Mock(return_value='7e8377af-bdc3-4b9e-a491-2d9ddff3253f'))
-    monkeypatch.setattr('iqvia.contacts.views.db.session.flush', database_mock)
+    monkeypatch.setattr('iqvia.contacts.views.db.session.merge', database_mock)
+    monkeypatch.setattr('iqvia.contacts.views.db.session.commit', database_mock)
     monkeypatch.setattr('iqvia.contacts.views.does_contact_username_exist', Mock(return_value=False))
 
     get_mock = Mock(query=Mock(options=Mock(return_value=Mock(
@@ -211,7 +212,7 @@ def test_update_contact_ok(monkeypatch):
                              'username': 'testusername1234UPDATED'}
 
     assert status_code == 200
-    assert database_mock.call_count == 1
+    assert database_mock.call_count == 2
 
 
 def test_update_contact_nok_username_already_exists(monkeypatch):
@@ -247,7 +248,6 @@ def test_update_contact_nok_username_already_exists(monkeypatch):
     assert database_mock.call_count == 0
 
 
-#
 def test_update_contact_nok_contact_not_found(monkeypatch):
     """
     Testing a invalid contact update: the contact is not found.
