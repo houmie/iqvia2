@@ -1,4 +1,4 @@
-from iqvia.contacts.services import validate_username, does_contact_username_exist
+from iqvia.contacts.services import validate_username, does_contact_username_exist, does_contact_emails_exist
 from unittest.mock import Mock
 
 
@@ -20,9 +20,9 @@ def test_invalid_usernames():
     assert validate_username('waaaaaaaaaaaaaaaaaytooooooooooolongggggggggggggggggggggggggggggggggggggggggggg') is False
 
 
-def test_contact_exists(monkeypatch):
+def test_contact_username_exists(monkeypatch):
     """
-    Testing contact exists.
+    Testing contact username exists.
     n.b: 1 entry found, scalar() returns 1.
     :return:
     """
@@ -32,12 +32,36 @@ def test_contact_exists(monkeypatch):
     assert does_contact_username_exist('username') is True
 
 
-def test_contact_doesnt_exists(monkeypatch):
+def test_contact_username_doesnt_exists(monkeypatch):
     """
-    Testing contact exists.
+    Testing contact username exists.
     n.b: 0 entry found, scalar() returns None.
     :return:
     """
     monkeypatch.setattr('iqvia.contacts.services.Contact',
                         Mock(query=Mock(filter=Mock(return_value=Mock(scalar=Mock(return_value=None))))))
     assert does_contact_username_exist('username') is False
+
+
+def test_contact_email_exists(monkeypatch):
+    """
+    Testing contact email exists.
+    n.b: 1 entry found, scalar() returns 1.
+    :return:
+    """
+    monkeypatch.setattr('iqvia.contacts.services.Contact',
+                        Mock(query=Mock(options=Mock(return_value=Mock(filter=Mock(return_value=Mock(
+                            scalar=Mock(return_value=1))))))))
+    assert does_contact_emails_exist([Mock(email='email1@test.com'), Mock(email='email2')]) is True
+
+
+def test_contact_email_doesnt_exists(monkeypatch):
+    """
+    Testing contact email exists.
+    n.b: 0 entry found, scalar() returns None.
+    :return:
+    """
+    monkeypatch.setattr('iqvia.contacts.services.Contact',
+                        Mock(query=Mock(options=Mock(return_value=Mock(filter=Mock(return_value=Mock(
+                            scalar=Mock(return_value=None))))))))
+    assert does_contact_emails_exist([Mock(email='email1@test.com'), Mock(email='email2')]) is False

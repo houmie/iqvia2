@@ -139,6 +139,30 @@ define({ "api": [
     "groupTitle": "Contacts"
   },
   {
+    "type": "delete",
+    "url": "/contacts/<contact_id>",
+    "title": "Deletes contacts",
+    "description": "<p>Deletes contacts</p>",
+    "name": "delete_contacts",
+    "group": "Contacts",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Integer",
+            "optional": false,
+            "field": "inserted_seconds",
+            "description": "<p>Deletes all the contacts inserted before inserted_seconds ago.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "iqvia/contacts/views.py",
+    "groupTitle": "Contacts"
+  },
+  {
     "type": "get",
     "url": "/contacts/<username>",
     "title": "Gets a contact",
