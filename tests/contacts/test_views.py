@@ -22,11 +22,11 @@ def test_add_contact_ok(monkeypatch):
     monkeypatch.setattr('iqvia.contacts.views.db.session.commit', database_mock)
     monkeypatch.setattr('iqvia.contacts.views.does_contact_username_exist', Mock(return_value=False))
     status_code, response_data = post('contacts/', test_data)
-    assert response_data == {'surname': 'testsurname',
-                             'first_name': 'tesfirstname',
-                             'id': '7e8377af-bdc3-4b9e-a491-2d9ddff3253f',
-                             'username': 'testusername1234',
-                             'emails': [{'email': 'testemail1@gmail.com'}, {'email': 'testemail2@gmail.com'}]}
+    assert response_data == {'id': '7e8377af-bdc3-4b9e-a491-2d9ddff3253f',
+                             'emails': [{'email': 'testemail1@gmail.com'},
+                                        {'email': 'testemail2@gmail.com'}],
+                             'username': 'testusername1234', 'inserted': None,
+                             'surname': 'testsurname', 'first_name': 'tesfirstname'}
     assert status_code == 200
     assert database_mock.call_count == 2
 
@@ -75,18 +75,18 @@ def test_get_contacts_ok(monkeypatch):
     monkeypatch.setattr('iqvia.contacts.views.Contact', get_mock)
 
     status_code, response_data = get('contacts/')
-    assert response_data == {'contacts': [{'id': '7e8377af-bdc3-4b9e-a491-2d9ddff3253f',
+    assert response_data == {'contacts': [{'username': 'testusername1234',
+                                           'first_name': 'testfirstname1',
                                            'surname': 'testsurname1',
                                            'emails': [{'email': 'testemail1@gmail.com'},
                                                       {'email': 'testemail2@gmail.com'}],
-                                           'username': 'testusername1234',
-                                           'first_name': 'testfirstname1'},
-                                          {'id': '6e8377af-bdc3-4b9e-a491-2d9ddff3253g',
+                                           'id': '7e8377af-bdc3-4b9e-a491-2d9ddff3253f', 'inserted': None},
+                                          {'username': 'testusername4567',
+                                           'first_name': 'testfirstname2',
                                            'surname': 'testsurname2',
                                            'emails': [{'email': 'testemail3@gmail.com'},
                                                       {'email': 'testemail4@gmail.com'}],
-                                           'username': 'testusername4567',
-                                           'first_name': 'testfirstname2'}]}
+                                           'id': '6e8377af-bdc3-4b9e-a491-2d9ddff3253g', 'inserted': None}]}
     assert status_code == 200
 
 
@@ -106,11 +106,14 @@ def test_get_contact_by_username_ok(monkeypatch):
     monkeypatch.setattr('iqvia.contacts.views.Contact', get_mock)
 
     status_code, response_data = get('contacts/contact?username=testusername1234')
-    assert response_data == {'emails': [{'email': 'testemail1@gmail.com'}],
+
+    assert response_data == {'username': 'testusername1234',
+                             'inserted': None,
+                             'emails': [{'email': 'testemail1@gmail.com'}],
                              'id': '7e8377af-bdc3-4b9e-a491-2d9ddff3253f',
-                             'username': 'testusername1234',
-                             'first_name': 'testfirstname',
-                             'surname': 'testsurname'}
+                             'surname': 'testsurname',
+                             'first_name': 'testfirstname'}
+
     assert status_code == 200
 
 
@@ -131,11 +134,12 @@ def test_get_contact_by_email_ok(monkeypatch):
 
     status_code, response_data = get('contacts/contact?email=testemail1@gmail.com')
 
-    assert response_data == {'emails': [{'email': 'testemail1@gmail.com'}],
-                             'id': '7e8377af-bdc3-4b9e-a491-2d9ddff3253f',
-                             'username': 'testusername1234',
+    assert response_data == {'username': 'testusername1234',
                              'first_name': 'testfirstname',
-                             'surname': 'testsurname'}
+                             'emails': [{'email': 'testemail1@gmail.com'}],
+                             'surname': 'testsurname',
+                             'inserted': None, 'id': '7e8377af-bdc3-4b9e-a491-2d9ddff3253f'}
+
     assert status_code == 200
 
 
@@ -204,12 +208,12 @@ def test_update_contact_ok(monkeypatch):
     monkeypatch.setattr('iqvia.contacts.views.Contact', get_mock)
     status_code, response_data = post('contacts/7e8377af-bdc3-4b9e-a491-2d9ddff3253f', test_data)
 
-    assert response_data == {'emails': [{'email': 'testemail1comUPDATED@gmail.com'},
+    assert response_data == {'surname': 'testsurnameUPDATED',
+                             'emails': [{'email': 'testemail1comUPDATED@gmail.com'},
                                         {'email': 'testemail2comUPDATED@gmail.com'}],
                              'first_name': 'tesfirstnameUPDATED',
-                             'id': '7e8377af-bdc3-4b9e-a491-2d9ddff3253f',
-                             'surname': 'testsurnameUPDATED',
-                             'username': 'testusername1234UPDATED'}
+                             'username': 'testusername1234UPDATED',
+                             'id': '7e8377af-bdc3-4b9e-a491-2d9ddff3253f', 'inserted': None}
 
     assert status_code == 200
     assert database_mock.call_count == 2

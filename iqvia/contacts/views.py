@@ -1,11 +1,12 @@
 from flask import Blueprint
+from flask_io import fields
 from uuid import uuid4
+from datetime import datetime, timedelta
+from sqlalchemy.orm import joinedload
 from .services import does_contact_username_exist
 from .schemas import ContactSchema
 from .models import Contact, Email
-from sqlalchemy.orm import joinedload
 from .. import db, io
-from flask_io import fields
 
 app = Blueprint('contacts', __name__, url_prefix='/contacts')
 
@@ -116,6 +117,24 @@ def delete_contact(contact_id):
 
     db.session.delete(contact)
     db.session.commit()
+
+
+@app.route('/<int:inserted_seconds>', methods=['DELETE'])
+def delete_contacts(inserted_seconds):
+    """
+    @api {delete} /contacts/<contact_id> Deletes contacts
+    @apiDescription Deletes contacts
+    @apiName delete_contacts
+    @apiGroup Contacts
+
+    @apiParam {Integer}  inserted_seconds  Deletes all the contacts inserted before inserted_seconds ago.
+    """
+    datetime_remove_from = datetime.now() - timedelta(seconds=inserted_seconds)
+
+    # Avoid loading the contacts in memory before deleting as it can be a lot of them.
+    delete_command = Contact.__table__.delete().where(Contact.inserted < datetime_remove_from)
+
+    db.engine.execute(delete_command)
 
 
 @app.route('/<uuid:contact_id>', methods=['PATCH', 'PUT', 'POST'])
