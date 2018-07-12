@@ -18,7 +18,7 @@ class EmailSchema(Schema):
 
 class ContactSchema(Schema):
     """
-    serialization-deserialization-validation class class for Contacts.
+    serialization-deserialization-validation class for Contacts.
     """
     id = fields.UUID(dump_only=True)
     first_name = fields.String(50, required=True)
