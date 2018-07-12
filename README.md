@@ -29,5 +29,5 @@ You'll bet a fresh iqvia.db mapped in the config.py
 
 ## TODO
 
-- Check the existence of all email addresses before allowing add/update to return 404 instead of 500
+- Check the existence of all email addresses before allowing update to return 404 instead of 500
 - Handle the database manipulations with a context manager
