@@ -3,9 +3,11 @@ from flask_io import fields
 from uuid import uuid4
 from datetime import datetime, timedelta
 from sqlalchemy.orm import joinedload
-from .services import does_contact_username_exist
+
+from .services import does_contact_username_exist, does_contact_emails_exist
 from .schemas import ContactSchema
 from .models import Contact, Email
+
 from .. import db, io
 
 app = Blueprint('contacts', __name__, url_prefix='/contacts')
@@ -36,9 +38,13 @@ def add_contact(contact):
     @apiSuccess {String{5-128}}          emails.email         The email address.
     """
     contact.id = str(uuid4())
+
     if does_contact_username_exist(contact.username):
         return io.bad_request('Sorry, the username {} of the contact you try '
                               'to add already exists'.format(contact.username))
+
+    if does_contact_emails_exist(contact.emails):
+        return io.bad_request('Sorry, one of the emails you are trying to add already exists')
 
     db.session.merge(contact)
     db.session.commit()

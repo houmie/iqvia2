@@ -21,6 +21,7 @@ def test_add_contact_ok(monkeypatch):
     monkeypatch.setattr('iqvia.contacts.views.db.session.merge', database_mock)
     monkeypatch.setattr('iqvia.contacts.views.db.session.commit', database_mock)
     monkeypatch.setattr('iqvia.contacts.views.does_contact_username_exist', Mock(return_value=False))
+    monkeypatch.setattr('iqvia.contacts.views.does_contact_emails_exist', Mock(return_value=False))
     status_code, response_data = post('contacts/', test_data)
     assert response_data == {'id': '7e8377af-bdc3-4b9e-a491-2d9ddff3253f',
                              'emails': [{'email': 'testemail1@gmail.com'},
@@ -33,7 +34,7 @@ def test_add_contact_ok(monkeypatch):
 
 def test_add_contact_nok_username_already_exists(monkeypatch):
     """
-    Testing an invalid contact creation: the username already exists
+    Testing an invalid contact creation: the username already exists.
     :return:
     """
     test_data = {"first_name": "tesfirstname",
@@ -46,10 +47,35 @@ def test_add_contact_nok_username_already_exists(monkeypatch):
     monkeypatch.setattr('iqvia.contacts.views.db.session.add', database_mock)
     monkeypatch.setattr('iqvia.contacts.views.db.session.commit', database_mock)
     monkeypatch.setattr('iqvia.contacts.views.does_contact_username_exist', Mock(return_value=True))
+    monkeypatch.setattr('iqvia.contacts.views.does_contact_emails_exist', Mock(return_value=False))
     status_code, response_data = post('contacts/', test_data)
 
     assert response_data == {'errors': [{'message': 'Sorry, the username testusername1234 '
                                                     'of the contact you try to add already exists'}]}
+    assert status_code == 400
+    assert database_mock.call_count == 0
+
+
+def test_add_contact_nok_one_email_already_exists(monkeypatch):
+    """
+    Testing an invalid contact creation: one of the emails already exists.
+    :return:
+    """
+    test_data = {"first_name": "tesfirstname",
+                 "surname": "testsurname",
+                 "emails": [{"email": "testemail1@gmail.com"},
+                            {"email": "testemail2@gmail.com"}],
+                 "username": "testusername1234"}
+    database_mock = Mock()
+    monkeypatch.setattr('iqvia.contacts.views.uuid4', Mock(return_value='7e8377af-bdc3-4b9e-a491-2d9ddff3253f'))
+    monkeypatch.setattr('iqvia.contacts.views.db.session.add', database_mock)
+    monkeypatch.setattr('iqvia.contacts.views.db.session.commit', database_mock)
+    monkeypatch.setattr('iqvia.contacts.views.does_contact_username_exist', Mock(return_value=False))
+    monkeypatch.setattr('iqvia.contacts.views.does_contact_emails_exist', Mock(return_value=True))
+    status_code, response_data = post('contacts/', test_data)
+
+    assert response_data == {'errors':
+                             [{'message': 'Sorry, one of the emails you are trying to add already exists'}]}
     assert status_code == 400
     assert database_mock.call_count == 0
 
@@ -181,6 +207,18 @@ def test_delete_contacts_nok_contact_not_found(monkeypatch):
     assert database_mock.call_count == 0
 
 
+def test_delete_contacts(monkeypatch):
+    """
+    Testing a call to the delete multiple contacts endpoint.
+    :param monkeypatch:
+    :return:
+    """
+    database_mock = Mock()
+    monkeypatch.setattr('iqvia.contacts.views.db', database_mock)
+    status_code = delete('contacts/20')
+    assert status_code == 204
+
+
 def test_update_contact_ok(monkeypatch):
     """
     Testing a valid contact update.
@@ -201,7 +239,7 @@ def test_update_contact_ok(monkeypatch):
     monkeypatch.setattr('iqvia.contacts.views.db.session.merge', database_mock)
     monkeypatch.setattr('iqvia.contacts.views.db.session.commit', database_mock)
     monkeypatch.setattr('iqvia.contacts.views.does_contact_username_exist', Mock(return_value=False))
-
+    monkeypatch.setattr('iqvia.contacts.views.does_contact_emails_exist', Mock(return_value=False))
     get_mock = Mock(query=Mock(options=Mock(return_value=Mock(
         filter=Mock(return_value=Mock(first=Mock(return_value=contact)))))))
 
@@ -238,6 +276,7 @@ def test_update_contact_nok_username_already_exists(monkeypatch):
     monkeypatch.setattr('iqvia.contacts.views.uuid4', Mock(return_value='7e8377af-bdc3-4b9e-a491-2d9ddff3253f'))
     monkeypatch.setattr('iqvia.contacts.views.db.session.flush', database_mock)
     monkeypatch.setattr('iqvia.contacts.views.does_contact_username_exist', Mock(return_value=True))
+    monkeypatch.setattr('iqvia.contacts.views.does_contact_emails_exist', Mock(return_value=False))
 
     get_mock = Mock(query=Mock(options=Mock(return_value=Mock(
         filter=Mock(return_value=Mock(first=Mock(return_value=contact)))))))
@@ -246,8 +285,8 @@ def test_update_contact_nok_username_already_exists(monkeypatch):
     status_code, response_data = post('contacts/7e8377af-bdc3-4b9e-a491-2d9ddff3253f', test_data)
 
     assert response_data == {'errors':
-                                 [{'message': 'Sorry, you cannot update the contact with the '
-                                              'username testusername1234UPDATED: it already exists'}]}
+                             [{'message': 'Sorry, you cannot update the contact with the '
+                                          'username testusername1234UPDATED: it already exists'}]}
     assert status_code == 400
     assert database_mock.call_count == 0
 
@@ -274,8 +313,8 @@ def test_update_contact_nok_contact_not_found(monkeypatch):
     monkeypatch.setattr('iqvia.contacts.views.Contact', get_mock)
     status_code, response_data = post('contacts/7e8377af-bdc3-4b9e-a491-2d9ddff3253f', test_data)
 
-    assert response_data == {'errors':[{'message': 'Sorry, '
-                                                   'the contact 7e8377af-bdc3-4b9e-a491-2d9ddff3253f you '
-                                                   'try to update does not exist'}]}
+    assert response_data == {'errors': [{'message': 'Sorry, '
+                                                    'the contact 7e8377af-bdc3-4b9e-a491-2d9ddff3253f you '
+                                                    'try to update does not exist'}]}
     assert status_code == 400
     assert database_mock.call_count == 0

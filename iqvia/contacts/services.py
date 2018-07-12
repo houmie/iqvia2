@@ -22,3 +22,13 @@ def does_contact_username_exist(username: str):
     :return bool: True if a contact with this username does exist.
     """
     return Contact.query.filter(func.lower(Contact.username) == func.lower(str(username))).scalar() is not None
+
+
+def does_contact_emails_exist(emails: list):
+    """
+    True if a contact already exists with one of the emails in the list.
+    :param obj emails: list of emails object instances.
+    :return:
+    """
+    return Contact.query.options(joinedload(Contact.emails)).\
+        filter(Contact.emails.any(Email.email.in_([email.email for email in emails]))).scalar() is not None
